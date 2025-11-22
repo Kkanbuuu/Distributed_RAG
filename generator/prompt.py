@@ -1,6 +1,6 @@
 def build_prompt(query: str, contexts: list[dict]) -> str:
     context_text = "\n\n".join(
-        [f"[Source: {c.get('source')}]\n{c['text']}" for c in contexts]
+        [f"[Source: {c.get('source')}]\n{c['content']}" for c in contexts]
     )
 
     prompt = f"""
