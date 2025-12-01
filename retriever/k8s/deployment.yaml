@@ -1,20 +1,20 @@
-apiVersion: apps/v1  # API 버전 (Deployment를 정의할 때 사용하는 Kubernetes API 그룹)
-kind: Deployment  # 리소스 종류 (Deployment 객체 생성)
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: retriever-app  # Deployment의 이름 (fastapi-app이라는 이름으로 정의됨)
+  name: retriever-app
 spec:
-  # replicas: 2  # Pod을 2개 실행 (수평 확장을 위한 설정)
+  # replicas: 2
   selector:
     matchLabels:
-      app: retriever-app  # 이 레이블이 있는 Pod을 관리
+      app: retriever-app
   template:
     metadata:
       labels:
-        app: retriever-app  # Pod에 붙일 레이블 (Service에서 Pod을 찾을 때 사용)
+        app: retriever-app
     spec:
       containers:
-      - name: retriever-app  # 컨테이너 이름
+      - name: retriever-app
         image: yoonseohan/retriever-poc:latest
-        # imagePullPolicy: IfNotPresent # 외부에서 pull 하지 않도록 (Docker registry 에서 찾는것을 방지)
+        # imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8000  # 컨테이너 내부에서 노출할 포트 (FastAPI 기본 포트)
+        - containerPort: 8000

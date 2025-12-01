@@ -1,14 +1,3 @@
-# orchestrator.py
-from fastapi import FastAPI
-# from router import router
-
-app = FastAPI(title="RAG Orchestrator")
-# app.include_router(router)
-
-@app.get("/health")
-async def health():
-    return {"message": "Orchestrator is running"}
-
 from fastapi import APIRouter
 from models import QueryRequest
 
@@ -16,36 +5,37 @@ from categorize import find_domain
 import requests
 
 
+router = APIRouter()
+
+
 # Retriever / Generator URL (Kubernetes Service 이름 기준)
-RETRIEVER_URL = "http://retriever-service:80/query"
-GENERATOR_URL = "http://generator-service:80/generate"
+RETRIEVER_URL = "http://retriever-service:8000/query"
+GENERATOR_URL = "http://generator-service:8800/generate"
 
 RETRIEVER_URLS = {
-    "news": "http://news-retriever-service:80/query",
-    "finance": "http://finance-retriever-service:80/query",
-    "law": "http://law-retriever-service:80/query"
+    "news": "http://news-retriever-service:8000/query",
+    "finance": "http://finance-retriever-service:8000/query",
+    "law": "http://law-retriever-service:8000/query"
 }
 
-@app.post("/query")
+@router.post("/query")
 async def handle_query(req: QueryRequest):
     retriever_payload = {"query_text": req.query_text, "top_k": req.top_k}
     
     # 1. Categorizes query into domain
     query_domain = find_domain(retriever_payload["query_text"])
-    print(f'domain: {query_domain}')
     retriever_url = RETRIEVER_URLS[query_domain]
-    print(f'retriever url: {retriever_url}')
+
 
     # 2. Calls Retriever
     # retriever_res = requests.post(RETRIEVER_URL, json=retriever_payload).json()
     retriever_res = requests.post(retriever_url, json=retriever_payload).json()
-    print(retriever_res)
     contexts = [
         {"id": str(doc["rank"]), "content": doc["document"], "score": doc.get("score")}
-        for doc in retriever_res["results"]
+        for doc in retriever_res
         ]
     generator_payload = {
-            "prompt": retriever_res["query"],
+            "prompt": req.query_text,  # 사용자가 입력한 query
             "contexts": contexts
         }
 
