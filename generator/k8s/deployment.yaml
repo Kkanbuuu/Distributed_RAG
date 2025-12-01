@@ -1,0 +1,20 @@
+apiVersion: apps/v1  
+kind: Deployment  
+metadata:
+  name: generator-app  
+spec:
+  # replicas: 2  
+  selector:
+    matchLabels:
+      app: generator-app
+  template:
+    metadata:
+      labels:
+        app: generator-app  
+    spec:
+      containers:
+      - name: generator-app  
+        image: yoonseohan/generator:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000  
