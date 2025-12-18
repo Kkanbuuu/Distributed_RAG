@@ -1,30 +1,23 @@
 # orchestrator.py
 from fastapi import FastAPI
-# from router import router
+from models import QueryRequest
+from categorize import find_domain
+import requests
+import os
+
+GENERATOR_URL = os.getenv("GENERATOR_URL")
+
+RETRIEVER_URLS = {
+    "news": os.getenv("RETRIEVER_NEWS_URL"),
+    "finance": os.getenv("RETRIEVER_FINANCE_URL"),
+    "law": os.getenv("RETRIEVER_LAW_URL"),
+}
 
 app = FastAPI(title="RAG Orchestrator")
-# app.include_router(router)
 
 @app.get("/health")
 async def health():
     return {"message": "Orchestrator is running"}
-
-from fastapi import APIRouter
-from models import QueryRequest
-
-from categorize import find_domain
-import requests
-
-
-# Retriever / Generator URL (Kubernetes Service 이름 기준)
-RETRIEVER_URL = "http://retriever-service:80/query"
-GENERATOR_URL = "http://generator-service:80/generate"
-
-RETRIEVER_URLS = {
-    "news": "http://news-retriever-service:80/query",
-    "finance": "http://finance-retriever-service:80/query",
-    "law": "http://law-retriever-service:80/query"
-}
 
 @app.post("/query")
 async def handle_query(req: QueryRequest):
