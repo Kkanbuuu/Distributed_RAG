@@ -5,6 +5,9 @@ from categorize import find_domain
 import requests
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 GENERATOR_URL = os.getenv("GENERATOR_URL")
 
 RETRIEVER_URLS = {
