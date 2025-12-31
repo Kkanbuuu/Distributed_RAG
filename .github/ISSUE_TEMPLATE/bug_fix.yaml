@@ -1,0 +1,46 @@
+name: Bug Report
+description: Report and fix a bug
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 🐞 Bug Description
+      description: What is the problem?
+      placeholder: Clearly describe the unexpected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 🔁 Steps to Reproduce
+      description: How can the bug be reproduced?
+      placeholder: Step-by-step reproduction instructions
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ✅ Expected Behavior
+      description: What should have happened?
+      placeholder: Describe expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened?
+      placeholder: Describe actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: 🛠 Proposed Fix (Optional)
+      description: How might this bug be fixed?
+      placeholder: Optional
