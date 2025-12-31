@@ -7,6 +7,7 @@ Closes # (issue number)
 ## 🧰 Changes
 - [ ] Feature / Improvement
 - [ ] Bug Fix
+- [ ] Test (Unit / Integration)
 - [ ] Refactor / Cleanup
 - [ ] Documentation
 
