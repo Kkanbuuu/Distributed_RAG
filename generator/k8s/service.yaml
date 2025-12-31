@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: generator-service 
 spec:
-  type: LoadBalancer  
+  type: ClusterIP
   selector:
     app: generator-app  
   ports:
   - protocol: TCP  
-    port: 8000  
-    targetPort: 8000  
+    port: 8000
+    targetPort: 8000

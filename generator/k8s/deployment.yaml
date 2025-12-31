@@ -15,6 +15,10 @@ spec:
       containers:
       - name: generator-app  
         image: yoonseohan/generator:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
+        args: ["uvicorn", "main:app", "--port", "8000", "--host", "0.0.0.0"]
         ports:
-        - containerPort: 8000  
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: generator-secret  
