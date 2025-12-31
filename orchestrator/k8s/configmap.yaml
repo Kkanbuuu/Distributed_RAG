@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: orchestrator-config
 data:
-  GENERATOR_URL: http://generator-service:80/generate
-  RETRIEVER_NEWS_URL: http://news-retriever-service:80/query
-  RETRIEVER_FINANCE_URL: http://finance-retriever-service:80/query
-  RETRIEVER_LAW_URL: http://law-retriever-service:80/query
+  GENERATOR_URL: http://generator-service:8000/generate
+  RETRIEVER_NEWS_URL: http://finance-retriever-service:8000/query
+  RETRIEVER_FINANCE_URL: http://finance-retriever-service:8000/query
+  RETRIEVER_LAW_URL: http://finance-retriever-service:8000/query

@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: orchestrator-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: orchestrator-app
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: 8000 
+    port: 8000
+    targetPort: 8000
+    nodePort: 30080

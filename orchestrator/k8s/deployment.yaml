@@ -14,10 +14,11 @@ spec:
     spec:
       containers:
       - name: orchestrator-app
-        image: chowonseo/orchestrator:latest
+        image: yoonseohan/orchestrator:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
+        args: ["uvicorn", "main:app", "--port", "8000", "--host", "0.0.0.0"]
         envFrom:
         - configMapRef:
             name: orchestrator-config
