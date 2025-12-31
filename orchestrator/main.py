@@ -6,15 +6,19 @@ import requests
 import os
 
 from dotenv import load_dotenv
-load_dotenv()
 
-GENERATOR_URL = os.getenv("GENERATOR_URL")
+if not os.getenv("KUBERNETES_SERVICE_HOST"):
+    load_dotenv()  
 
-RETRIEVER_URLS = {
-    "news": os.getenv("RETRIEVER_NEWS_URL"),
-    "finance": os.getenv("RETRIEVER_FINANCE_URL"),
-    "law": os.getenv("RETRIEVER_LAW_URL"),
-}
+def get_generator_url():
+    return os.getenv("GENERATOR_URL")
+
+def get_retriever_urls():
+    return {
+        "news": os.getenv("RETRIEVER_NEWS_URL"),
+        "finance": os.getenv("RETRIEVER_FINANCE_URL"),
+        "law": os.getenv("RETRIEVER_LAW_URL"),
+    }
 
 app = FastAPI(title="RAG Orchestrator")
 
@@ -29,11 +33,13 @@ async def handle_query(req: QueryRequest):
     # 1. Categorizes query into domain
     query_domain = find_domain(retriever_payload["query_text"])
     print(f'domain: {query_domain}')
-    retriever_url = RETRIEVER_URLS[query_domain]
+    
+    # Get retriever URLs dynamically (always reads current env vars)
+    retriever_urls = get_retriever_urls()
+    retriever_url = retriever_urls[query_domain]
     print(f'retriever url: {retriever_url}')
 
     # 2. Calls Retriever
-    # retriever_res = requests.post(RETRIEVER_URL, json=retriever_payload).json()
     retriever_res = requests.post(retriever_url, json=retriever_payload).json()
     print(retriever_res)
     contexts = [
@@ -46,5 +52,13 @@ async def handle_query(req: QueryRequest):
         }
 
     # 3. Pass to Generator
-    generator_res = requests.post(GENERATOR_URL, json=generator_payload).json()
-    return generator_res
+    generator_url = get_generator_url()
+    try:
+        response = requests.post(generator_url, json=generator_payload)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        generator_res = response.json()
+        return generator_res
+        
+    except Exception as e:
+        print(f"Generator error: {e}")
+        raise
