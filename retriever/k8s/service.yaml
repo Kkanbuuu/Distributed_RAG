@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: finance-retriever-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: retriever-app
   ports:
   - protocol: TCP
-    port: 80
+    port: 8000
     targetPort: 8000

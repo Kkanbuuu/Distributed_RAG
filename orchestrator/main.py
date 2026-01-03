@@ -1,30 +1,30 @@
 # orchestrator.py
 from fastapi import FastAPI
-# from router import router
+from models import QueryRequest
+from categorize import find_domain
+import requests
+import os
+
+from dotenv import load_dotenv
+
+if not os.getenv("KUBERNETES_SERVICE_HOST"):
+    load_dotenv()  
+
+def get_generator_url():
+    return os.getenv("GENERATOR_URL")
+
+def get_retriever_urls():
+    return {
+        "news": os.getenv("RETRIEVER_NEWS_URL"),
+        "finance": os.getenv("RETRIEVER_FINANCE_URL"),
+        "law": os.getenv("RETRIEVER_LAW_URL"),
+    }
 
 app = FastAPI(title="RAG Orchestrator")
-# app.include_router(router)
 
 @app.get("/health")
 async def health():
     return {"message": "Orchestrator is running"}
-
-from fastapi import APIRouter
-from models import QueryRequest
-
-from categorize import find_domain
-import requests
-
-
-# Retriever / Generator URL (Kubernetes Service 이름 기준)
-RETRIEVER_URL = "http://retriever-service:80/query"
-GENERATOR_URL = "http://generator-service:80/generate"
-
-RETRIEVER_URLS = {
-    "news": "http://news-retriever-service:80/query",
-    "finance": "http://finance-retriever-service:80/query",
-    "law": "http://law-retriever-service:80/query"
-}
 
 @app.post("/query")
 async def handle_query(req: QueryRequest):
@@ -33,11 +33,13 @@ async def handle_query(req: QueryRequest):
     # 1. Categorizes query into domain
     query_domain = find_domain(retriever_payload["query_text"])
     print(f'domain: {query_domain}')
-    retriever_url = RETRIEVER_URLS[query_domain]
+    
+    # Get retriever URLs dynamically (always reads current env vars)
+    retriever_urls = get_retriever_urls()
+    retriever_url = retriever_urls[query_domain]
     print(f'retriever url: {retriever_url}')
 
     # 2. Calls Retriever
-    # retriever_res = requests.post(RETRIEVER_URL, json=retriever_payload).json()
     retriever_res = requests.post(retriever_url, json=retriever_payload).json()
     print(retriever_res)
     contexts = [
@@ -50,5 +52,13 @@ async def handle_query(req: QueryRequest):
         }
 
     # 3. Pass to Generator
-    generator_res = requests.post(GENERATOR_URL, json=generator_payload).json()
-    return generator_res
+    generator_url = get_generator_url()
+    try:
+        response = requests.post(generator_url, json=generator_payload)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        generator_res = response.json()
+        return generator_res
+        
+    except Exception as e:
+        print(f"Generator error: {e}")
+        raise

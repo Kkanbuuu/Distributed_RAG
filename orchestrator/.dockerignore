@@ -1,0 +1,6 @@
+# Exclude .env file from Docker image
+.env
+
+# Exclude other local development files
+venv/
+__pycache__/
