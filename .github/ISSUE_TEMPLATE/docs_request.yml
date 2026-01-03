@@ -1,0 +1,36 @@
+name: Documentation
+description: Add or improve documentation
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: target
+    attributes:
+      label: 📄 Documentation Target
+      description: What document needs to be added or updated?
+      placeholder: README, architecture doc, API spec, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 🎯 Reason
+      description: Why is this documentation needed?
+      placeholder: Missing info, outdated content, onboarding clarity
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: ✍️ Content to Add or Update
+      description: What should be documented?
+      placeholder: Sections, diagrams, examples
+    validations:
+      required: true
+
+  - type: input
+    id: related
+    attributes:
+      label: 🔗 Related Issues / PRs
+      placeholder: e.g. #21

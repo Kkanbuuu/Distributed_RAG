@@ -1,0 +1,27 @@
+name: Refactor
+description: Code refactoring without changing external behavior
+labels: ["refactor"]
+body:
+  - type: textarea
+    id: target
+    attributes:
+      label: 🧱 Refactor Target
+      description: Which module or component will be refactored?
+      placeholder: e.g. Orchestrator service layer
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 🎯 Motivation
+      description: Why is this refactor needed?
+      placeholder: Improve readability, testability, or maintainability
+    validations:
+      required: true
+      
+  - type: input
+    id: related
+    attributes:
+      label: 🔗 Related Issues / PRs
+      placeholder: e.g. #45
