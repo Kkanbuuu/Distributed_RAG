@@ -1,5 +1,18 @@
-*.sh
-__pycache__/
+# Virtual environments
 venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment variables
 .env
+.env.local
+
+# Build artifacts and temporary files
 tmp/
+*.log
+
+# root script files
+*.sh
