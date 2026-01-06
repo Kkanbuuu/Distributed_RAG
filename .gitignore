@@ -16,3 +16,8 @@ tmp/
 
 # root script files
 *.sh
+*.md
+
+!README.md
+
+!scripts/*
