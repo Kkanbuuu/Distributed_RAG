@@ -1,5 +1,4 @@
 from categorize import find_domain
-import requests
 from .retriever_client import RetrieverClient
 from .generator_client import GeneratorClient
 
@@ -29,23 +28,16 @@ class OrchestratorService:
             Generator response with answer
             
         Raises:
-            ValueError: If domain is unknown or configuration is invalid
-            Exception: If retriever or generator service fails
+            ValueError: If domain is unknown, configuration invalid, or response structure invalid
+            Exception: If retriever or generator service fails (propagated from clients)
         """
-        
-        try:
-            query_domain = find_domain(query_text)
-            print(f"Query categorized as domain: {query_domain}")
+        query_domain = find_domain(query_text)
+        print(f"Query categorized as domain: {query_domain}")
 
-            retriever_res = self.retriever_client.retrieve(query_domain, query_text, top_k)
-            
-            if "results" not in retriever_res:
-                print(f"Invalid retriever response structure: {retriever_res}")
-                raise Exception(f"Invalid retriever response structure: {retriever_res}")        
-                
-        except Exception as e:
-            print(f"Retriever request failed: {e}")
-            raise Exception(f"Retriever request failed: {e}")
+        retriever_res = self.retriever_client.retrieve(query_domain, query_text, top_k)
+        
+        if "results" not in retriever_res:
+            raise ValueError(f"Invalid retriever response structure: missing 'results' key")
         
         contexts = [
             {
@@ -57,5 +49,6 @@ class OrchestratorService:
         ]
 
         prompt = retriever_res.get("query", query_text)
+        
         generator_res = self.generator_client.generate(contexts, prompt)
         return generator_res

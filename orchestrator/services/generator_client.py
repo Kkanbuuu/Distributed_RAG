@@ -4,7 +4,6 @@ import requests
 class GeneratorClient:
     def __init__(self):
         self.url = get_generator_url()
-        pass
 
     def generate(self, contexts: list[dict], query_text: str):
         generator_payload = {
