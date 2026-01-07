@@ -1,6 +1,24 @@
+from config import get_generator_url
+import requests
+
 class GeneratorClient:
     def __init__(self):
+        self.url = get_generator_url()
         pass
 
-    def generate(self, prompt: str):
-        pass    
+    def generate(self, contexts: list[dict], query_text: str):
+        generator_payload = {
+            "prompt": query_text,
+            "contexts": contexts
+        }
+        try:
+            generator_response = requests.post(
+                self.url, 
+                json=generator_payload
+            )
+            generator_response.raise_for_status()
+            return generator_response.json()
+        except requests.exceptions.HTTPError as e:
+            raise Exception(f"Generator request failed: {e.response.status_code}")
+        except Exception as e:
+            raise Exception(f"Generator request failed: {e}")

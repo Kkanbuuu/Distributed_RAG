@@ -1,7 +1,7 @@
 from categorize import find_domain
-from config import get_generator_url, get_retriever_urls
 import requests
 from .retriever_client import RetrieverClient
+from .generator_client import GeneratorClient
 
 class OrchestratorService:
     """
@@ -12,6 +12,7 @@ class OrchestratorService:
     
     def __init__(self):
         self.retriever_client = RetrieverClient()
+        self.generator_client = GeneratorClient()
 
     def process_query(self, query_text: str, top_k: int):
         """
@@ -54,23 +55,7 @@ class OrchestratorService:
             }
             for doc in retriever_res["results"]
         ]
-        
-        query_text_for_generator = retriever_res.get("query", query_text)
-        
-        generator_payload = {
-            "prompt": query_text_for_generator,
-            "contexts": contexts
-        }
 
-        generator_url = get_generator_url()
-        try:
-            generator_response = requests.post(
-                generator_url,
-                json=generator_payload,
-            )
-            generator_response.raise_for_status()
-            generator_res = generator_response.json()
-            return generator_res
-        except Exception as e:
-            print(f"Generator request failed: {e}")
-            raise Exception(f"Generator request failed: {e}")
+        prompt = retriever_res.get("query", query_text)
+        generator_res = self.generator_client.generate(contexts, prompt)
+        return generator_res
