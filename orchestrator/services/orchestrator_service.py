@@ -1,7 +1,7 @@
 from categorize import find_domain
 from config import get_generator_url, get_retriever_urls
 import requests
-
+from .retriever_client import RetrieverClient
 
 class OrchestratorService:
     """
@@ -11,8 +11,7 @@ class OrchestratorService:
     """
     
     def __init__(self):
-        # TODO: Will be replaced with client instances later
-        pass
+        self.retriever_client = RetrieverClient()
 
     def process_query(self, query_text: str, top_k: int):
         """
@@ -32,34 +31,20 @@ class OrchestratorService:
             ValueError: If domain is unknown or configuration is invalid
             Exception: If retriever or generator service fails
         """
-        query_domain = find_domain(query_text)
-        print(f"Query categorized as domain: {query_domain}")
         
-        retriever_urls = get_retriever_urls()
-        
-        if query_domain not in retriever_urls:
-            available_domains = list(retriever_urls.keys())
-            print(f"Unknown domain: {query_domain}. Available domains: {available_domains}")
-            raise ValueError(f"Unknown domain: {query_domain}. Supported domains: {available_domains}")
-        
-        retriever_url = retriever_urls[query_domain]
-        print(f"Using retriever URL: {retriever_url}")
-
-        retriever_payload = {"query_text": query_text, "top_k": top_k}
         try:
-            retriever_response = requests.post(
-                retriever_url,
-                json=retriever_payload,
-            )
-            retriever_response.raise_for_status()
-            retriever_res = retriever_response.json()
+            query_domain = find_domain(query_text)
+            print(f"Query categorized as domain: {query_domain}")
+
+            retriever_res = self.retriever_client.retrieve(query_domain, query_text, top_k)
+            
+            if "results" not in retriever_res:
+                print(f"Invalid retriever response structure: {retriever_res}")
+                raise Exception(f"Invalid retriever response structure: {retriever_res}")        
+                
         except Exception as e:
             print(f"Retriever request failed: {e}")
             raise Exception(f"Retriever request failed: {e}")
-        
-        if "results" not in retriever_res:
-            print(f"Invalid retriever response structure: {retriever_res}")
-            raise Exception(f"Invalid retriever response structure: {retriever_res}")
         
         contexts = [
             {
