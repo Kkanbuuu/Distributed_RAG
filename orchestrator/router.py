@@ -1,44 +1,32 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models import QueryRequest
-
-from categorize import find_domain
-import requests
-
+from services.orchestrator_service import OrchestratorService
 
 router = APIRouter()
 
-
-# Retriever / Generator URL (Kubernetes Service 이름 기준)
-RETRIEVER_URL = "http://retriever-service:8000/query"
-GENERATOR_URL = "http://generator-service:8800/generate"
-
-RETRIEVER_URLS = {
-    "news": "http://news-retriever-service:8000/query",
-    "finance": "http://finance-retriever-service:8000/query",
-    "law": "http://law-retriever-service:8000/query"
-}
+orchestrator_service = OrchestratorService()
 
 @router.post("/query")
 async def handle_query(req: QueryRequest):
-    retriever_payload = {"query_text": req.query_text, "top_k": req.top_k}
+    """
+    Handle a query request by delegating to the orchestrator service.
     
-    # 1. Categorizes query into domain
-    query_domain = find_domain(retriever_payload["query_text"])
-    retriever_url = RETRIEVER_URLS[query_domain]
-
-
-    # 2. Calls Retriever
-    # retriever_res = requests.post(RETRIEVER_URL, json=retriever_payload).json()
-    retriever_res = requests.post(retriever_url, json=retriever_payload).json()
-    contexts = [
-        {"id": str(doc["rank"]), "content": doc["document"], "score": doc.get("score")}
-        for doc in retriever_res
-        ]
-    generator_payload = {
-            "prompt": req.query_text,  # 사용자가 입력한 query
-            "contexts": contexts
-        }
-
-    # 3. Pass to Generator
-    generator_res = requests.post(GENERATOR_URL, json=generator_payload).json()
-    return generator_res
+    This is a thin route handler that:
+    1. Validates the request (handled by Pydantic)
+    2. Delegates business logic to OrchestratorService
+    3. Handles HTTP exceptions and converts service errors to HTTP responses
+    """
+    try:
+        # Delegate to service layer
+        result = orchestrator_service.process_query(
+            query_text=req.query_text,
+            top_k=req.top_k
+        )
+        return result
+        
+    except Exception as e:
+        print(f"Unexpected error processing query: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
