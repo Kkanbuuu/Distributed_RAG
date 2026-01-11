@@ -1,0 +1,58 @@
+services:
+  retriever:
+    build:
+      context: ./retriever
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./retriever/data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  generator:
+    build:
+      context: ./generator
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./generator/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - retriever
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  orchestrator:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./orchestrator/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GENERATOR_URL=http://generator:8000/generate
+      - RETRIEVER_NEWS_URL=http://retriever:8000/query
+      - RETRIEVER_FINANCE_URL=http://retriever:8000/query
+      - RETRIEVER_LAW_URL=http://retriever:8000/query
+    depends_on:
+      - generator
+      - retriever
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
