@@ -6,7 +6,6 @@ import config
 client = Groq(api_key = config.GROQ_API_KEY)
 
 def generate_answer(prompt: str):
-    print("CONFIG" + config.GROQ_API_KEY)
     start = time.time()
 
     completion = client.chat.completions.create(
