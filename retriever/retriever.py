@@ -24,7 +24,7 @@ class SimpleRetriever:
 
     def _embed_documents(self):
         self.embeddings = self.model.encode(self.documents, convert_to_numpy=True, show_progress_bar=True, normalize_embeddings=True)
-        dimension = self.embeddings.shape[1]
+        dimension = self.embeddings.shape[1
         self.index = faiss.IndexFlatIP(dimension)
         self.index.add(self.embeddings.astype('float32'))
         print(f"Indexed {len(self.documents)} documents.")
