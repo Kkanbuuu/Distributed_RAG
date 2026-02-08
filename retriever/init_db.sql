@@ -10,8 +10,4 @@ CREATE TABLE documents (
 );
 
 CREATE INDEX idx_documents_domain ON documents (domain);
-CREATE INDEX idx_documents_created_at ON documents (created_at);
-CREATE INDEX idx_documents_updated_at ON documents (updated_at);
 CREATE INDEX idx_documents_title ON documents (title);
-CREATE INDEX idx_documents_content ON documents (content);
-CREATE INDEX idx_documents_source_url ON documents (source_url);
