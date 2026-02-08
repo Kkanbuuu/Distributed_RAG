@@ -1,12 +1,12 @@
 services:
   retriever:
     build:
-      context: ./retriever
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: retriever/Dockerfile
     ports:
       - "8002:8000"
     volumes:
-      - ./retriever/data:/app/data
+      - ./retriever/data:/app/retriever/data
     environment:
       - PYTHONUNBUFFERED=1
     healthcheck:
@@ -17,8 +17,8 @@ services:
 
   generator:
     build:
-      context: ./generator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: generator/Dockerfile
     ports:
       - "8001:8000"
     env_file:
@@ -35,8 +35,8 @@ services:
 
   orchestrator:
     build:
-      context: ./orchestrator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: orchestrator/Dockerfile
     ports:
       - "8000:8000"
     env_file:
