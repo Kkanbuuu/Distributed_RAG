@@ -13,9 +13,8 @@ def get_generator_url() -> str:
 
 def get_retriever_urls() -> dict[str, str]:
     urls = {
-        "news": os.getenv("RETRIEVER_NEWS_URL"),
-        "finance": os.getenv("RETRIEVER_FINANCE_URL"),
-        "law": os.getenv("RETRIEVER_LAW_URL"),
+        "overview": os.getenv("RETRIEVER_OVERVIEW_URL"),
+        "concepts": os.getenv("RETRIEVER_CONCEPTS_URL"),
     }
     
     missing = [domain for domain, url in urls.items() if not url]

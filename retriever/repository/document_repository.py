@@ -3,8 +3,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from typing import List
 
-from retriever.models import Document
-
+from models import Document
 
 class DocumentRepository:
     def __init__(self, engine: Engine):
