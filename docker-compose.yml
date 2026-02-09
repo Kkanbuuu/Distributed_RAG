@@ -1,14 +1,19 @@
 services:
   retriever:
     build:
-      context: .
-      dockerfile: retriever/Dockerfile
+      context: retriever
+      dockerfile: Dockerfile
     ports:
       - "8002:8000"
     volumes:
-      - ./retriever/data:/app/retriever/data
+      - ./retriever/data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - DOMAIN=overview
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -17,8 +22,8 @@ services:
 
   generator:
     build:
-      context: .
-      dockerfile: generator/Dockerfile
+      context: generator
+      dockerfile: Dockerfile
     ports:
       - "8001:8000"
     env_file:
@@ -35,8 +40,8 @@ services:
 
   orchestrator:
     build:
-      context: .
-      dockerfile: orchestrator/Dockerfile
+      context: orchestrator
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     env_file:
@@ -44,9 +49,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - GENERATOR_URL=http://generator:8000/generate
-      - RETRIEVER_NEWS_URL=http://retriever:8000/query
-      - RETRIEVER_FINANCE_URL=http://retriever:8000/query
-      - RETRIEVER_LAW_URL=http://retriever:8000/query
+      - RETRIEVER_OVERVIEW_URL=http://retriever:8000/query
+      - RETRIEVER_CONCEPTS_URL=http://retriever:8000/query
     depends_on:
       - generator
       - retriever
@@ -56,3 +60,23 @@ services:
       timeout: 5s
       retries: 3
 
+  postgres:
+    image: postgres:15.1-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./retriever/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: distributed_rag_postgres_data
