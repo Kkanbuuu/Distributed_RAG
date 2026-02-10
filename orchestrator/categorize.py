@@ -11,4 +11,6 @@ def find_domain(query_text: str) -> str:
         if score > best_score:
             best_score = score
             best_domain = domain
-    return best_domain          # e.g. "finance"
+            
+    print(f"Query categorized as domain: {best_domain}")
+    return best_domain          

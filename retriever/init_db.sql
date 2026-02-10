@@ -1,0 +1,13 @@
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    version INT NOT NULL DEFAULT 1,
+    source_url TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_documents_domain ON documents (domain);
+CREATE INDEX idx_documents_title ON documents (title);

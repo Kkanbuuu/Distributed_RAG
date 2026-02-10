@@ -1,0 +1,25 @@
+# 로컬 개발용: Postgres만 띄우고, 앱은 호스트에서 실행 (localhost:5432로 접속)
+# 사용: docker compose -f docker-compose.local.yml up -d
+#
+# 볼륨: 아래 name을 두 compose에서 동일하게 두면 로컬/통합 테스트가 같은 DB 데이터 공유
+services:
+  postgres:
+    image: postgres:15.1-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./retriever/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: distributed_rag_postgres_data
