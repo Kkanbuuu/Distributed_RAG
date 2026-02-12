@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
       - name: generator-app
-        image: yoonseohan/generator:latest
-        imagePullPolicy: IfNotPresent
+        image: yoonseohan/distributed-rag-generator:latest
+        imagePullPolicy: Always
         args: ["uvicorn", "main:app", "--port", "8000", "--host", "0.0.0.0"]
         ports:
         - containerPort: 8000
