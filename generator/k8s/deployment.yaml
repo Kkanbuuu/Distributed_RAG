@@ -1,24 +1,28 @@
-apiVersion: apps/v1  
-kind: Deployment  
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: generator-app  
+  name: generator-app
+  labels:
+    app: generator-app
+    component: generator
 spec:
-  # replicas: 2  
+  # replicas: 2
   selector:
     matchLabels:
       app: generator-app
   template:
     metadata:
       labels:
-        app: generator-app  
+        app: generator-app
+        component: generator
     spec:
       containers:
-      - name: generator-app  
-        image: yoonseohan/generator:latest
-        imagePullPolicy: IfNotPresent
+      - name: generator-app
+        image: yoonseohan/distributed-rag-generator:latest
+        imagePullPolicy: Always
         args: ["uvicorn", "main:app", "--port", "8000", "--host", "0.0.0.0"]
         ports:
         - containerPort: 8000
         envFrom:
         - secretRef:
-            name: generator-secret  
+            name: generator-secret

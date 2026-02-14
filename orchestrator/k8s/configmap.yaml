@@ -2,8 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: orchestrator-config
+  labels:
+    app: orchestrator-app
+    component: orchestrator
 data:
   GENERATOR_URL: http://generator-service:8000/generate
-  RETRIEVER_NEWS_URL: http://finance-retriever-service:8000/query
-  RETRIEVER_FINANCE_URL: http://finance-retriever-service:8000/query
-  RETRIEVER_LAW_URL: http://finance-retriever-service:8000/query
+  RETRIEVER_OVERVIEW_URL: http://retriever-service:8000/query
+  RETRIEVER_CONCEPTS_URL: http://retriever-service:8000/query

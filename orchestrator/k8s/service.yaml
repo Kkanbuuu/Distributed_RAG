@@ -2,6 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: orchestrator-service
+  labels:
+    app: orchestrator-app
+    component: orchestrator
 spec:
   type: NodePort
   selector:

@@ -1,12 +1,15 @@
-apiVersion: v1  
-kind: Service  
+apiVersion: v1
+kind: Service
 metadata:
-  name: generator-service 
+  name: generator-service
+  labels:
+    app: generator-app
+    component: generator
 spec:
   type: ClusterIP
   selector:
-    app: generator-app  
+    app: generator-app
   ports:
-  - protocol: TCP  
+  - protocol: TCP
     port: 8000
     targetPort: 8000
