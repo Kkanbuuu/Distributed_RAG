@@ -30,6 +30,25 @@ class SimpleRetriever:
         self.documents = self.repository.get_documents(self.domain)
         print(f"Loaded {len(self.documents)} documents from PostgreSQL (domain={self.domain}).")
 
+    def add_document(
+        self,
+        title: str,
+        content: str,
+        domain: str,
+        source_url: str | None = None,
+    ) -> Document:
+        """1) content를 model로 임베딩, 2) repository.add_document로 저장."""
+        embedding = self.model.encode(
+            [content], convert_to_numpy=True, normalize_embeddings=True
+        ).tolist()[0]  # (1, 384) -> [float, ...]
+        return self.repository.add_document(
+            title=title,
+            content=content,
+            domain=domain,
+            embedding=embedding,
+            source_url=source_url,
+        )
+
     def _embed_documents(self) -> None:
         if not self.documents:
             print("No documents to embed.")
