@@ -11,6 +11,11 @@ class QueryRequest(BaseModel):
     query_text: str
     top_k: int = 5
 
+class AddDocumentRequest(BaseModel):
+    title: str
+    content: str
+    domain: str
+    source_url: str | None = None
 
 app = FastAPI()
 
@@ -30,23 +35,16 @@ def root():
 def health():
     return {"status": "ok"}
 
-
-@app.post("/test-add-document")
-def test_add_document():
-    """add_document 로컬 테스트용: 샘플 문서 하나 넣고 id 반환"""
+@app.post("/add-document")
+def add_document(req: AddDocumentRequest):
+    """Add a document to the repository."""
     doc = retriever.add_document(
-        title="Test doc",
-        content="This is a test document for add_document.",
-        domain="overview",
+        title=req.title,
+        content=req.content,
+        domain=req.domain,
+        source_url=req.source_url,
     )
     return {"message": "ok", "id": doc.id, "title": doc.title}
-
-
-@app.get("/load_data")
-def load_data():
-    retriever._load_data()
-    retriever._embed_documents()
-    return {"message": "Data loaded successfully.", "num_documents": len(retriever.documents)}
 
 @app.post("/query")
 def query(req: QueryRequest):
