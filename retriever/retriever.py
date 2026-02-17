@@ -31,8 +31,7 @@ class SimpleRetriever:
         print(f"Loaded {len(self.documents)} documents from PostgreSQL (domain={self.domain}).")
 
     def _embed_documents(self) -> None:
-        if not self.documents:
-            print("No documents to embed.")
+   s to embed.")
             self.embeddings = None
             self.index = None
             return
