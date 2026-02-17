@@ -32,7 +32,6 @@ class OrchestratorService:
             Exception: If retriever or generator service fails (propagated from clients)
         """
         query_domain = find_domain(query_text)
-        print(f"Query categorized as domain: {query_domain}")
 
         retriever_res = self.retriever_client.retrieve(query_domain, query_text, top_k)
         
