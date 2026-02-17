@@ -40,7 +40,7 @@ class SimpleRetriever:
         """1) content를 model로 임베딩, 2) repository.add_document로 저장."""
         embedding = self.model.encode(
             [content], convert_to_numpy=True, normalize_embeddings=True
-        ).tolist()[0]  # (1, 384) -> [float, ...]
+        ).tolist()[0] 
         return self.repository.add_document(
             title=title,
             content=content,
