@@ -4,7 +4,7 @@
 # 볼륨: 아래 name을 두 compose에서 동일하게 두면 로컬/통합 테스트가 같은 DB 데이터 공유
 services:
   postgres:
-    image: postgres:15.1-alpine
+    image: pgvector/pgvector:pg15
     ports:
       - "5432:5432"
     environment:

@@ -70,7 +70,7 @@ services:
       - orchestrator
 
   postgres:
-    image: postgres:15.1-alpine
+    image: pgvector/pgvector:pg15
     ports:
       - "5432:5432"
     environment:
