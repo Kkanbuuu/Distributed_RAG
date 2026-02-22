@@ -13,12 +13,22 @@ def get_generator_url() -> str:
 
 def get_retriever_urls() -> dict[str, str]:
     urls = {
-        "overview": os.getenv("RETRIEVER_OVERVIEW_URL"),
-        "concepts": os.getenv("RETRIEVER_CONCEPTS_URL"),
+        "proj_spec": os.getenv("RETRIEVER_PROJ_SPEC_URL"),
+        "tech_concept": os.getenv("RETRIEVER_TECH_CONCEPT_URL"),
+        "dev_log": os.getenv("RETRIEVER_DEV_LOG_URL"),
+        "ops_ts": os.getenv("RETRIEVER_OPS_TS_URL"),
     }
-    
+
     missing = [domain for domain, url in urls.items() if not url]
     if missing:
         raise ValueError(f"Missing retriever URLs for domains: {', '.join(missing)}")
-    
+
     return urls
+
+
+def get_retriever_timeout() -> float:
+    """Retriever request timeout in seconds. Single slow retriever won't block others."""
+    val = os.getenv("RETRIEVER_TIMEOUT_SEC")
+    if val is not None:
+        return float(val)
+    return 30.0

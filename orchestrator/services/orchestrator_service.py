@@ -1,54 +1,46 @@
-from categorize import find_domain
 from .retriever_client import RetrieverClient
 from .generator_client import GeneratorClient
+
 
 class OrchestratorService:
     """
     Service layer for orchestrating RAG queries.
-    Handles the business logic of categorizing queries, retrieving documents,
-    and generating answers.
+    Fan-out: retrieves from all domain retrievers in parallel, then generates answer.
     """
     
     def __init__(self):
         self.retriever_client = RetrieverClient()
         self.generator_client = GeneratorClient()
 
-    def process_query(self, query_text: str, top_k: int):
+    async def process_query(self, query_text: str, top_k: int):
         """
         Process a query through the RAG pipeline:
-        1. Categorize query into domain
-        2. Retrieve relevant documents
-        3. Generate answer
+        1. Fan-out: retrieve from all retrievers in parallel (retrieve_multiple_domains)
+        2. Sort merged results by score and keep top_k
+        3. Build contexts and generate answer
         
         Args:
             query_text: The user's query
-            top_k: Number of top results to retrieve
+            top_k: Per-retriever fetch size; then top_k by score are sent to generator
             
         Returns:
             Generator response with answer
-            
-        Raises:
-            ValueError: If domain is unknown, configuration invalid, or response structure invalid
-            Exception: If retriever or generator service fails (propagated from clients)
         """
-        query_domain = find_domain(query_text)
-        print(f"Query categorized as domain: {query_domain}")
-
-        retriever_res = self.retriever_client.retrieve(query_domain, query_text, top_k)
-        
-        if "results" not in retriever_res:
-            raise ValueError(f"Invalid retriever response structure: missing 'results' key")
-        
+        results = await self.retriever_client.retrieve_multiple_domains(query_text, top_k)
+        print(f"[orchestrator] Retrieved {len(results)} docs, selecting top {top_k} by score")
+        # Sort by score descending (None scores last), then take top_k
+        sorted_results = sorted(
+            results,
+            key=lambda d: (d.get("score") is None, -(d.get("score") or 0)),
+        )
+        top_results = sorted_results[:top_k]
         contexts = [
             {
-                "id": str(doc["rank"]),
+                "id": f"{doc.get('domain', '')}_{doc.get('rank', i)}",
                 "content": doc["document"],
-                "score": doc.get("score")
+                "score": doc.get("score"),
             }
-            for doc in retriever_res["results"]
+            for i, doc in enumerate(top_results)
         ]
-
-        prompt = retriever_res.get("query", query_text)
-        
-        generator_res = self.generator_client.generate(contexts, prompt)
-        return generator_res
+        print(f"[orchestrator] Sending {len(contexts)} contexts to generator")
+        return self.generator_client.generate(contexts, query_text)

@@ -7,5 +7,8 @@ metadata:
     component: orchestrator
 data:
   GENERATOR_URL: http://generator-service:8000/generate
-  RETRIEVER_OVERVIEW_URL: http://retriever-service:8000/query
-  RETRIEVER_CONCEPTS_URL: http://retriever-service:8000/query
+  RETRIEVER_PROJ_SPEC_URL: http://retriever-proj-spec-service:8000/query
+  RETRIEVER_TECH_CONCEPT_URL: http://retriever-tech-concept-service:8000/query
+  RETRIEVER_DEV_LOG_URL: http://retriever-dev-log-service:8000/query
+  RETRIEVER_OPS_TS_URL: http://retriever-ops-ts-service:8000/query
+  RETRIEVER_TIMEOUT_SEC: "10"
