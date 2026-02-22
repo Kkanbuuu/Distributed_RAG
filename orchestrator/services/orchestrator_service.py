@@ -16,25 +16,31 @@ class OrchestratorService:
         """
         Process a query through the RAG pipeline:
         1. Fan-out: retrieve from all retrievers in parallel (retrieve_multiple_domains)
-        2. Merge results and build contexts
-        3. Generate answer
+        2. Sort merged results by score and keep top_k
+        3. Build contexts and generate answer
         
         Args:
             query_text: The user's query
-            top_k: Number of top results per retriever
+            top_k: Per-retriever fetch size; then top_k by score are sent to generator
             
         Returns:
             Generator response with answer
         """
         results = await self.retriever_client.retrieve_multiple_domains(query_text, top_k)
-        print(f"[orchestrator] Retrieved {len(results)} docs, building contexts")
+        print(f"[orchestrator] Retrieved {len(results)} docs, selecting top {top_k} by score")
+        # Sort by score descending (None scores last), then take top_k
+        sorted_results = sorted(
+            results,
+            key=lambda d: (d.get("score") is None, -(d.get("score") or 0)),
+        )
+        top_results = sorted_results[:top_k]
         contexts = [
             {
                 "id": f"{doc.get('domain', '')}_{doc.get('rank', i)}",
                 "content": doc["document"],
                 "score": doc.get("score"),
             }
-            for i, doc in enumerate(results)
+            for i, doc in enumerate(top_results)
         ]
         print(f"[orchestrator] Sending {len(contexts)} contexts to generator")
         return self.generator_client.generate(contexts, query_text)

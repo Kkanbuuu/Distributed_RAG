@@ -41,13 +41,10 @@ class RetrieverClient:
             print(f"[retriever_client] Domain {query_domain}: got {n} results")
             return data
         except httpx.HTTPStatusError as e:
-            print(f"[retriever_client] Domain {query_domain} failed: HTTP {e.response.status_code}")
             raise Exception(f"Retriever request failed: {e.response.status_code}")
         except httpx.RequestError as e:
-            print(f"[retriever_client] Domain {query_domain} failed: {e}")
             raise Exception(f"Retriever request failed: {e}")
         except Exception as e:
-            print(f"[retriever_client] Domain {query_domain} failed: {e}")
             raise Exception(f"Retriever request failed: {e}")
 
     async def retrieve_multiple_domains(self, query_text: str, top_k: int) -> List[dict]:

@@ -7,6 +7,7 @@ class GeneratorClient:
 
     def generate(self, contexts: list[dict], query_text: str):
         print(f"[generator_client] Generating answer for query: {query_text}")
+        print(f"[generator_client] Contexts: {contexts}")
         generator_payload = {
             "prompt": query_text,
             "contexts": contexts
