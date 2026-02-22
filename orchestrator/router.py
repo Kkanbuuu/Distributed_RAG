@@ -18,7 +18,7 @@ async def handle_query(req: QueryRequest):
     """
     try:
         # Delegate to service layer
-        result = orchestrator_service.process_query(
+        result = await orchestrator_service.process_query(
             query_text=req.query_text,
             top_k=req.top_k
         )

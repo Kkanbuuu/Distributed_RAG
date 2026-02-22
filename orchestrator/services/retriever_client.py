@@ -1,4 +1,6 @@
 import asyncio
+from typing import List
+
 import httpx
 import requests
 from config import get_retriever_urls
@@ -30,24 +32,44 @@ class RetrieverClient:
             "query_text": query_text,
             "top_k": top_k
         }
-        try: 
+        try:
+            print(f"[retriever_client] Requesting domain: {query_domain}")
             response = await client.post(retriever_url, json=retriever_payload)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            n = len(data.get("results") or [])
+            print(f"[retriever_client] Domain {query_domain}: got {n} results")
+            return data
         except httpx.HTTPStatusError as e:
+            print(f"[retriever_client] Domain {query_domain} failed: HTTP {e.response.status_code}")
             raise Exception(f"Retriever request failed: {e.response.status_code}")
         except httpx.RequestError as e:
+            print(f"[retriever_client] Domain {query_domain} failed: {e}")
             raise Exception(f"Retriever request failed: {e}")
         except Exception as e:
+            print(f"[retriever_client] Domain {query_domain} failed: {e}")
             raise Exception(f"Retriever request failed: {e}")
 
-    async def retrieve_multiple_domains(self, query_text: str, top_k: int) -> list[dict]:
-        contexts = []
-        domains = self.get_retriever_urls().keys()    
+    async def retrieve_multiple_domains(self, query_text: str, top_k: int) -> List[dict]:
+        """
+        Fan-out: call all retrievers in parallel, merge results.
+        Returns list of result dicts (each includes "domain"). Failed domains are skipped.
+        """
+        domains = list(self.retriever_urls.keys())
+        print(f"[retriever_client] Fan-out: query to {len(domains)} domains (top_k={top_k}): {domains}")
         async with httpx.AsyncClient() as client:
             tasks = [
-                self.retrieve_single_domain(domain, client, query_text, top_k) for domain in domains
-            ]  
-
-            results = await asyncio.gather(*tasks)
-            return results
+                self.retrieve_single_domain_async(domain, client, query_text, top_k)
+                for domain in domains
+            ]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+        merged: List[dict] = []
+        for domain, r in zip(domains, results):
+            if isinstance(r, Exception):
+                print(f"[retriever_client] Skipping domain {domain} (exception)")
+                continue
+            if r and "results" in r:
+                for doc in r["results"]:
+                    merged.append({**doc, "domain": domain})
+        print(f"[retriever_client] Fan-out done: {len(merged)} total results from {len(domains)} domains")
+        return merged
