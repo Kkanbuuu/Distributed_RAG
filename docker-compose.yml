@@ -119,6 +119,7 @@ services:
       - RETRIEVER_TECH_CONCEPT_URL=http://retriever-tech-concept:8000/query
       - RETRIEVER_DEV_LOG_URL=http://retriever-dev-log:8000/query
       - RETRIEVER_OPS_TS_URL=http://retriever-ops-ts:8000/query
+      - RETRIEVER_TIMEOUT_SEC=10
     depends_on:
       - generator
       - retriever-proj-spec

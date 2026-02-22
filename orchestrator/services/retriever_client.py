@@ -3,7 +3,7 @@ from typing import List
 
 import httpx
 import requests
-from config import get_retriever_urls
+from config import get_retriever_urls, get_retriever_timeout
 
 class RetrieverClient:
     def __init__(self):
@@ -15,8 +15,10 @@ class RetrieverClient:
             "query_text": query_text,
             "top_k": top_k
         }
-        try :
-            retriever_response = requests.post(retriever_url, json=retriever_payload)
+        try:
+            retriever_response = requests.post(
+                retriever_url, json=retriever_payload, timeout=get_retriever_timeout()
+            )
             retriever_response.raise_for_status()
             return retriever_response.json()
         except requests.exceptions.HTTPError as e:
@@ -34,12 +36,16 @@ class RetrieverClient:
         }
         try:
             print(f"[retriever_client] Requesting domain: {query_domain}")
-            response = await client.post(retriever_url, json=retriever_payload)
+            response = await client.post(
+                retriever_url, json=retriever_payload, timeout=get_retriever_timeout()
+            )
             response.raise_for_status()
             data = response.json()
             n = len(data.get("results") or [])
             print(f"[retriever_client] Domain {query_domain}: got {n} results")
             return data
+        except httpx.TimeoutException as e:
+            raise Exception(f"Retriever request timed out: {e}") from e
         except httpx.HTTPStatusError as e:
             raise Exception(f"Retriever request failed: {e.response.status_code}")
         except httpx.RequestError as e:
@@ -53,7 +59,7 @@ class RetrieverClient:
         Returns list of result dicts (each includes "domain"). Failed domains are skipped.
         """
         domains = list(self.retriever_urls.keys())
-        print(f"[retriever_client] Fan-out: query to {len(domains)} domains (top_k={top_k}): {domains}")
+        print(f"[retriever_client] Fan-out: query to {len(domains)} domains (top_k={top_k}, timeout={get_retriever_timeout()}s): {domains}")
         async with httpx.AsyncClient() as client:
             tasks = [
                 self.retrieve_single_domain_async(domain, client, query_text, top_k)

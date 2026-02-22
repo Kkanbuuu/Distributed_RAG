@@ -24,3 +24,11 @@ def get_retriever_urls() -> dict[str, str]:
         raise ValueError(f"Missing retriever URLs for domains: {', '.join(missing)}")
 
     return urls
+
+
+def get_retriever_timeout() -> float:
+    """Retriever request timeout in seconds. Single slow retriever won't block others."""
+    val = os.getenv("RETRIEVER_TIMEOUT_SEC")
+    if val is not None:
+        return float(val)
+    return 30.0
